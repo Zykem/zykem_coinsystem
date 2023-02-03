@@ -14,13 +14,19 @@ exports['zykem_coinsystem'].getUserCoins(identifier)
 ```
 # Add User Coins
 
-```exports['zykem_coinsystem'].addUserCoins(source,identifier,amount)```
+```lua
+exports['zykem_coinsystem'].addUserCoins(source,identifier,amount)
+```
 # Set User Coins
 
-```exports['zykem_coinsystem'].setUserCoins(source,identifier,amount)```
+```lua
+exports['zykem_coinsystem'].setUserCoins(source,identifier,amount)
+```
 # Remove User Coins
 
-```exports['zykem_coinsystem'].removeUserCoins(source,identifier,amount)```
+```lua
+exports['zykem_coinsystem'].removeUserCoins(source,identifier,amount)
+```
 
 
 
