@@ -1,6 +1,6 @@
 ESX = nil
 
-TriggerEvent('hypex:getTwojStarySharedTwojaStaraObject', function(obj) ESX = obj end)
+TriggerEvent(cl_cfg.esxInit, function(obj) ESX = obj end)
 
 ESX.RegisterServerCallback('zykem_coinsystem:getUserData', function(source,cb)
     local data = {coins = 0, rank = nil}

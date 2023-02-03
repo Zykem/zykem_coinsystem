@@ -1,7 +1,7 @@
 ESX = nil
 CreateThread(function()
 	while ESX == nil do
-		TriggerEvent('hypex:getTwojStarySharedTwojaStaraObject', function(obj)
+		TriggerEvent(cl_cfg.esxInit, function(obj)
 			ESX = obj
 		end)
 		Citizen.Wait(250)
