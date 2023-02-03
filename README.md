@@ -5,13 +5,18 @@
 # Add `ensure zykem_coinsystem` to your server.cfg and type ```refresh\nrestart zykem_coinsystem``` in your server console
 
 <h1>Usage</h1>
+
 # Get User Coins
+
 ```exports['zykem_coinsystem'].getUserCoins(identifier)```
 # Add User Coins
+
 ```exports['zykem_coinsystem'].addUserCoins(source,identifier,amount)```
 # Set User Coins
+
 ```exports['zykem_coinsystem'].setUserCoins(source,identifier,amount)```
 # Remove User Coins
+
 ```exports['zykem_coinsystem'].removeUserCoins(source,identifier,amount)```
 
 ```ensure zykem_coinsystem```
