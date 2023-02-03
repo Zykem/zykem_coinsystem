@@ -1,5 +1,6 @@
 
 <h1>Installation</h1>
+
 # Install Files
 # Drag and Drop them to your resources Folder
 # Add `ensure zykem_coinsystem` to your server.cfg and type ```refresh\nrestart zykem_coinsystem``` in your server console
@@ -19,7 +20,7 @@
 
 ```exports['zykem_coinsystem'].removeUserCoins(source,identifier,amount)```
 
-```ensure zykem_coinsystem```
+
 
 <h1>Preview</h1>
 <ul>
