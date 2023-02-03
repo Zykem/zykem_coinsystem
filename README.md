@@ -1,9 +1,9 @@
 
 <h1>Installation</h1>
 
-# Install Files
-# Drag and Drop them to your resources Folder
-# Add `ensure zykem_coinsystem` to your server.cfg and type ```refresh\nrestart zykem_coinsystem``` in your server console
+1. Install Files
+2. Drag and Drop them to your resources Folder
+3. Add `ensure zykem_coinsystem` to your server.cfg and type ```refresh\nrestart zykem_coinsystem``` in your server console
 
 <h1>Usage</h1>
 
