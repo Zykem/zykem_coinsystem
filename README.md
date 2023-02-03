@@ -9,7 +9,9 @@
 
 # Get User Coins
 
-```exports['zykem_coinsystem'].getUserCoins(identifier)```
+```lua
+exports['zykem_coinsystem'].getUserCoins(identifier)
+```
 # Add User Coins
 
 ```exports['zykem_coinsystem'].addUserCoins(source,identifier,amount)```
