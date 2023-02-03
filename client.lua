@@ -40,14 +40,11 @@ function OpenCoinsMainMenu()
 			title    = 'Menu Glowne',
 			align    = 'center',
 			elements = elements
-		}, function(data, menu)			
-			if(data.current.value == 'adminmenu') then
-				print('elosek')
-				OpenAdminMenu()
-			end
-			if (data.current.value == 'shop') then
-				OpenShopMenu()
-			end
+		}, function(data, menu)	
+
+			if data.current.value == 'admintmenu' then OpenAdminMenu() end;	
+			if data.current.value == 'shop' then OpenShopMenu() end;
+
 		end, function(data, menu)
 			menu.close()
 		end)
@@ -60,8 +57,8 @@ function OpenAdminMenu()
 	ESX.UI.Menu.CloseAll()
 	
 	ESX.TriggerServerCallback('zykem_coins:hasPerms', function(res)
-		if res then	
 
+		if not res then return end;
 			local elements = {
 				{label = "Daj Coinsy", value = 'addcoins'},
 				{label = "Usun Coinsy", value = 'removecoins'}
@@ -131,8 +128,6 @@ function OpenAdminMenu()
 					end, function(data, menu)
 						menu.close()
 					end)
-
-		end
 	end)
 
 end
@@ -164,7 +159,7 @@ function OpenShopMenu()
 			
 			
 			end, data.current.value, data.current.price)	
-			--OpenItemMenu()
+
 			end
 		end, function(data, menu)
 			menu.close()
@@ -199,53 +194,6 @@ function OpenRankMenu(rank)
 		menu.close()
 	end)
 end
-
-RegisterNetEvent('zykem_coinsystem:ItemHandler', function(item)
-	elements = {}
-	for k,v in pairs(cl_cfg.shopItems) do
-
-		if item == v.itemname then
-		
-			if item == 'platechanger' then
-				ESX.TriggerServerCallback('zykem:getvehs', function(result)	
-					for i = 1, #result.cars do
-						if result.plates[i] == nil then return end;
-		
-						table.insert(elements, {label = "[" .. result.plates[i] .. '] # ' .. GetDisplayNameFromVehicleModel(result.cars[i].model), value = result.plates[i]})
-					end
-					
-					ESX.UI.Menu.CloseAll()
-		
-					ESX.UI.Menu.Open('default', GetCurrentResourceName(), 'actions_menu',
-					{
-						title    = 'Zmiana Rejestracji',
-						align    = 'center',
-						elements = elements
-					}, function(data, menu)			
-						ESX.UI.Menu.Open('dialog', GetCurrentResourceName(), 'nazwa_ubioru', {
-							title = ('Podaj nowa Rejestracje')
-						}, function(data2, menu2)
-							ESX.UI.Menu.CloseAll()
-							if data2.value == nil then return end;
-							if string.len(data2.value) ~= 8 then notify('Rejestracja musi miec 8 Znakow!') end;
-						end, function(data2, menu2)
-							menu2.close()
-						end)
-					end, function(data, menu)
-						menu.close()
-					end)
-		
-				end)
-			end
-
-		else
-
-		end
-
-	end
-	print(item)
-
-end)
 
 RegisterNetEvent('zykem_misc:notify', function(msg)
 

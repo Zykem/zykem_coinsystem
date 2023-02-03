@@ -1,5 +1,8 @@
 cl_cfg = {}
 
+cl_cfg.esxInit = "esx:getSharedObject" -- replace with your event
+
+
 cl_cfg.shopItems = {
 
     {itemname = "bread", itemdesc = "# Slot 1 #", price = 1, type = 'item', value = 'bread'},

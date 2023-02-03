@@ -24,6 +24,7 @@ ESX.RegisterServerCallback('zykem_coinsystem:getUserData', function(source,cb)
 
 
 end)
+
 function round(num, numDecimalPlaces)
     if numDecimalPlaces and numDecimalPlaces>0 then
       local mult = 10^numDecimalPlaces
@@ -32,22 +33,6 @@ function round(num, numDecimalPlaces)
     return math.floor(num + 0.5)
   end
 
-
-local ranks = {
-
-    deleteYoutuber = function(identifier)
-        MySQL.Async.execute("UPDATE users SET rank = @rank WHERE identifier = @identifier AND rank = @ranga",{
-            ['@identifier'] = identifier,
-            ['@rank'] = 'Gracz',
-            ['@ranga'] = 'youtuber'
-        }, function(result)
-            
-            print('Usunieto wszystkie usuniete/niepubliczne Filmy.')
-        
-        end)
-    end,
-
-}
 
 function getRank(identifier)
     local rank
@@ -64,6 +49,7 @@ function getRank(identifier)
     return rank;
 end
 exports('getRank', getRank)
+
 function updateRank(identifier,name,videoid,rank, duration)
     if rank == 'youtuber' then
         MySQL.Async.execute("UPDATE users SET rank = @rank,videoid=@videoid WHERE identifier = @identifier",{
@@ -94,7 +80,7 @@ function updateRank(identifier,name,videoid,rank, duration)
                 ['@rank'] = rank,
                 ['@duration'] = finalDate
             }, function(result)            
-                TriggerClientEvent('zykem_misc:announcement', -1, '[ZYKEMRP] # Gracz zykem  zakupil range ' .. string.upper(rank) .. ' na ' .. duration .. '!')
+                print('Ustawiono range Uzytkownikowi ' .. name)
             end)
 
         elseif duration == '1w' then
@@ -138,7 +124,9 @@ function getUserCoins(identifier)
     return coins
 end
 exports('getUserCoins', getUserCoins)
+
 function removeUserCoins(source,identifier, amount)
+    if source == nil then return end;
     if amount > cfg.maxCoinsRemove then TriggerClientEvent('esx:showNotification', source, 'Probujesz zabrac za duzo coinsow na raz.') return end;
     MySQL.Async.execute('UPDATE users SET coins = coins - @amount WHERE identifier = @identifier', {
         ['@identifier'] = identifier,
@@ -151,11 +139,10 @@ function removeUserCoins(source,identifier, amount)
     
     end)
 end
-
 exports('removeUserCoins', removeUserCoins)
 
 function addUserCoins(source,identifier,amount)
-    print(amount)
+    if source == nil then return end;
     if amount > cfg.maxCoinsGive then TriggerClientEvent('esx:showNotification', source, 'Probujesz dac za duzo coinsow na raz.') return end;
     MySQL.Async.execute('UPDATE users SET coins = coins + @amount WHERE identifier = @identifier', {
         ['@identifier'] = identifier,
@@ -168,12 +155,12 @@ end
 exports('addUserCoins', addUserCoins)
 
 function setUserCoins(source,identifier,amount)
+    if source == nil then return end;
     MySQL.Async.execute('UPDATE users SET coins = @amount WHERE identifier = @identifier', {
         ['@identifier'] = identifier,
         ['amount'] = amount
     }, function(result)
-
-    
+        print(source .. ' ustawil coinsy uzytkownikowi ' .. identifier)
     end)
 end
 
@@ -186,28 +173,24 @@ AddEventHandler('zykem_coinsystem:expired', function(identifier)
 		['@identifier'] = identifier,
         ['@rank'] = 'Gracz'
 	}, function(rowsChanged)
-		print("[INFO] # Usunieto " .. identifier .. ' z cooldownu Kitu!')
+		print('[INFO] # Usunieto range Uzytkownikowi ' .. identifier .. '!')
 	end)
 end)
 
-function checkTime(d, h, m)
-	print("[INFO] # Sprawdzam Czas")
-
+function checkTime()
 	MySQL.Async.fetchAll('SELECT identifier, rank, rankexpire as timestamp FROM users', 
 		{
 			
 		}, 
 		function(result)
 			local time_now = os.time()
-			for i=1, #result, 1 do
-				local dostepTime = result[i].timestamp
-
-                if result[i].rank ~= 'Gracz' then
-                    if dostepTime <= time_now then
-                        TriggerEvent('zykem_coinsystem:expired', result[i].identifier)
-                    end
+			local i = 1
+            while i <= #result do -- NANOSECOND OPTIMIZATION ON TOP
+                local dostepTime = result[i].timestamp
+                if result[i].rank ~= 'Gracz' and dostepTime <= time_now then
+                    TriggerEvent('zykem_coinsystem:expired', result[i].identifier)
                 end
-			end
+            end
 		end
 	)
 end
@@ -216,6 +199,7 @@ CreateThread(function()
 
         checkTime()
         Wait(1000 * 60 * 10)
+
     end
 
 end)
@@ -226,31 +210,12 @@ function prompt(source, type)
 
 end
 
-ESX.RegisterServerCallback('zykem_coins:changePlate', function(source,cb,plate,newplate)
-
-    local xPlayer = ESX.GetPlayerFromId(source)
-    local identifier = xPlayer.getIdentifier()
-
-    MySQL.Async.execute('UPDATE owned_vehicles SET plate = @newplate WHERE owner = @identifier AND plate = @plate', {
-
-        ['@newplate'] = newplate,
-        ['@identifier'] = identifier,
-        ['@plate'] = plate
-
-    }, function(result)
-        
-        TriggerClientEvent('zykem_misc:notify', source, 'Zmieniono rejestracje na ' .. newplate)
-    
-    end)
-
-end)
-
 ESX.RegisterServerCallback('zykem_coins:addCoins', function(source,cb,id,amount)
 
+    if amount == nil or id == nil then return end;
     local xPlayer = ESX.GetPlayerFromId(source)
     local xTarget = ESX.GetPlayerFromId(id)
     local targetID = xTarget.getIdentifier()
-    addUserCoins(xTarget.source,targetID, amount)
     if amount > cfg.maxCoinsGive then
         xPlayer.showNotification('Nie mozesz dac wiecej niz ' .. cfg.maxCoinsGive);
         return
@@ -258,8 +223,9 @@ ESX.RegisterServerCallback('zykem_coins:addCoins', function(source,cb,id,amount)
     xPlayer.showNotification('Dodales ' .. amount .. ' Coinsow Graczowi ' .. id)
     if getUserCoins(targetID) < 0 then
         setUserCoins(source, xTarget.source,targetID, amount) 
+    else
+        addUserCoins(xTarget.source,targetID, amount)
     end
-
 
 end)
 
@@ -284,8 +250,13 @@ end)
 ESX.RegisterServerCallback('zykem_ranks:buyRank', function(source,cb,rank,duration,price)
     local xPlayer = ESX.GetPlayerFromId(source);
     local identifier = xPlayer.getIdentifier();
+    local rankFound = false
 
-    if rank ~= 'vip' and rank ~= 'svip' and rank ~= 'legend' then return false end;
+    for k, v in ipairs(cfg.ranks) do
+        if v == rank then rankFound = true break end; -- NANOSECOND OPTIMIZATION ON TOP
+    end
+    
+    if not rankFound then return false end;
     if getUserCoins(identifier) < price then prompt(source, 'money') return false end;
 
     removeUserCoins(source,identifier, price)
@@ -298,27 +269,32 @@ end)
 ESX.RegisterServerCallback('zykem_ranks:buyItem', function(source,cb,item,price)
     local xPlayer = ESX.GetPlayerFromId(source);
     local identifier = xPlayer.getIdentifier();
-    local items = {}
-    if getUserCoins(identifier) < price then prompt(source, 'money') return false end;
+
     for k,v in pairs(cl_cfg.shopItems) do
         if(string.find(v.value, item)) then
-            xPlayer.addInventoryItem(item, 1)
-            removeUserCoins(source,identifier, price)
-            xPlayer.showNotification('Zakupiles Item ' .. string.upper(item) .. ' za ' .. price .. 'x Coinsow!');
-        else
-            --banplr
+            found = true -- NANOSECOND OPTIMIZATION ON TOP
+            break
         end
     end
+
+    if not found then return end;   -- callback argument item does not exist in config, probably cheater tried to resp item!
+    if getUserCoins(identifier) < price then prompt(source, 'money') return false end;
+
+    xPlayer.addInventoryItem(item, 1)
+    removeUserCoins(source,identifier, price)
+    xPlayer.showNotification('Zakupiles Item ' .. string.upper(item) .. ' za ' .. price .. 'x Coinsow!');
 
 end)
 
 ESX.RegisterServerCallback('zykem_coins:hasPerms', function(source,cb)
     local xPlayer = ESX.GetPlayerFromId(source)
     local group = xPlayer.getGroup()
+    local found = false
 
     for k,v in pairs(cfg.perms) do
-        if(string.match(v, group)) then cb(true) return end;
-        cb(false);
+        if(string.match(v, group)) then found = true break end;
     end
+
+    cb(found)
 
 end)

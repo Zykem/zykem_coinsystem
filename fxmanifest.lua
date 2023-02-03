@@ -2,6 +2,8 @@ fx_version 'cerulean'
 author 'zykem'
 description 'Coin system with ranks such as VIP included'
 game 'gta5'
+version '1.0.1'
+
 
 client_scripts {
 
